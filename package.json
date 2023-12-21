@@ -1,35 +1,29 @@
 {
-	"name": "",
+	"name": "galton_board",
 	"description": "",
 	"version": "0.0.0",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/rxn7/treegen.git"
+		"url": "git+https://github.com/rxn7/galton_board.git"
 	},
 	"keywords": [
 		"typescript"
 	],
 	"scripts": {
 		"minify": "minify static/index.html > build/index.html & minify static/style.css > build/style.css",
-
-		"build:src": "mkdir -p build & tsc --project $(pwd)",
-		"build:static": "mkdir -p build & cp -r static/* build ",
-		"build": "npm run build:src & npm run build:static",
-
+		"build:src": "mkdir -p build && tsc --project $(pwd)",
+		"build:static": "mkdir -p build && cp -r static/* build ",
+		"build": "npm run build:src && npm run build:static",
 		"watch:src": "tsc --watch --project $(pwd)",
-		"watch:static": "watch 'npm run build:static' ./static",
+		"watch:static": "watch 'npm run build:static' ./static --ignoreDirectoryPattern='*build'",
 		"watch": "npm run watch:static & npm run watch:src",
-
 		"deploy": "npm run build && npm run minify && gh-pages --dist build",
-
 		"ls": "live-server build",
 		"dev": "npm run watch & npm run ls"
 	},
 	"author": "rxn7",
 	"license": "ISC",
 	"homepage": "https://maciejniziolek.xyz",
-	"dependencies": {
-	},
 	"devDependencies": {
 		"gh-pages": "^6.0.0",
 		"live-server": "^1.2.2",
