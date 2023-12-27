@@ -6,6 +6,7 @@ export default class Board {
 	private lastRowStartX: number = 0
 	public pinSpacing: number = 8
 	public pinRadius: number = 8
+	private graphSize: number = 100
 	public rowHeight: number = this.pinSpacing * 2 + this.pinRadius * 2
 	public colHitCount: Array<number> = []
 
@@ -16,11 +17,15 @@ export default class Board {
 
 	public onCanvasResize(canvas: HTMLCanvasElement): void {
 		const minSize: number = Math.min(canvas.clientWidth, canvas.clientHeight)
+
 		this.pinSpacing = minSize / (this.rowCount * 12)
 		this.pinRadius = minSize / (this.rowCount * 8)
 		this.rowHeight = this.pinSpacing * 2 + this.pinRadius * 2
 		this.lastRowStartX = canvas.clientWidth * 0.5 - (this.rowCount - 1) * this.rowHeight
-		this.yOffset = canvas.clientHeight / 20
+		this.graphSize = minSize / 10
+
+		const verticalSize: number = this.rowCount * this.rowHeight + this.graphSize
+		this.yOffset = (canvas.clientHeight - verticalSize) * 0.5
 	}
 
 	public isBallCollidingWithPins(ball: Ball): boolean {
@@ -42,7 +47,6 @@ export default class Board {
 
 	public render(ctx: CanvasRenderingContext2D): void {
 		const maxHitCount: number = MathUtils.maxFromArray(this.colHitCount)
-		const remainingVerticalSpace: number = ctx.canvas.clientHeight - this.yOffset - this.rowHeight * this.rowCount
 
 		for (let row: number = 0; row < this.rowCount; ++row) {
 			const startX: number = ctx.canvas.clientWidth * 0.5 - row * this.rowHeight
@@ -55,28 +59,29 @@ export default class Board {
 				let radius: number = this.pinRadius
 
 				if (isLastRow) {
-					radius *= 1.5
+					radius *= 2
 					const ratio: number = this.colHitCount[pin] / maxHitCount
 
 					// Render graph line
 					ctx.beginPath()
-					ctx.fillStyle = '#1f1'
-					ctx.roundRect(x - this.pinRadius, y, this.pinRadius * 2, ratio * remainingVerticalSpace, [0, 0, this.pinRadius, this.pinRadius])
+					ctx.fillStyle = Ball.color
+					ctx.roundRect(x - this.pinRadius, y, this.pinRadius * 2, ratio * this.graphSize, [0, 0, this.pinRadius, this.pinRadius])
 					ctx.fill()
 					ctx.beginPath()
-
-					// Render hit count text
-					ctx.fillStyle = '#000'
-					ctx.textAlign = 'center'
-					ctx.textBaseline = 'top'
-					ctx.font = `bold ${radius}px monospace`
-					ctx.fillText(this.colHitCount[pin].toString(), x, y + radius, radius * 2)
 				}
 
 				ctx.beginPath()
 				ctx.arc(x, y, radius, 0, 2 * Math.PI)
-				ctx.fillStyle = '#e44'
+				ctx.fillStyle = '#cc241d'
 				ctx.fill()
+
+				if (isLastRow) {
+					ctx.fillStyle = '#fbf1c7'
+					ctx.textAlign = 'center'
+					ctx.textBaseline = 'top'
+					ctx.font = `bold ${radius}px monospace`
+					ctx.fillText(this.colHitCount[pin].toString(), x, y - radius * 0.5, radius * 2)
+				}
 			}
 		}
 	}

@@ -5,14 +5,15 @@ const ballSpawnInterval: number = 200
 const minimunFps: number = 30
 const minimumDeltaTime: number = 1 / minimunFps
 
-const ctx: CanvasRenderingContext2D = (document.getElementById('canvas') as HTMLCanvasElement).getContext('2d') as CanvasRenderingContext2D
+const ctx: CanvasRenderingContext2D = (document.getElementById('canvas') as HTMLCanvasElement).getContext('2d', { alpha: false, willReadFrequently: false }) as CanvasRenderingContext2D
 const board: Board = new Board(ctx.canvas, 19)
 const balls: Array<Ball> = []
 let lastFrameTime: DOMHighResTimeStamp = 0
 
 function init() {
+	ctx.imageSmoothingEnabled = true
+	ctx.imageSmoothingQuality = 'high'
 	spawnBall()
-	requestAnimationFrame(gameLoop)
 
 	const resizeCanvas = (): void => {
 		balls.length = 0
@@ -23,13 +24,16 @@ function init() {
 
 	resizeCanvas()
 	window.addEventListener('resize', () => resizeCanvas())
+
+	requestAnimationFrame(gameLoop)
 }
 
 function gameLoop(time: DOMHighResTimeStamp): void {
 	const deltaTimeMs: number = Math.max(time - lastFrameTime, minimumDeltaTime)
 	lastFrameTime = time
 
-	ctx.clearRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight)
+	ctx.fillStyle = '#282828'
+	ctx.fillRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight)
 
 	board.render(ctx)
 

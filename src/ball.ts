@@ -4,7 +4,7 @@ import { Vector2 } from './vector2.js'
 
 export default class Ball {
 	public static readonly moveSpeed: number = 1
-	public static readonly color: string = '#0f0'
+	public static readonly color: string = '#689d6a'
 
 	public queueDelete: boolean = false
 	public lastCollidedPinRowIdx: number = -1
