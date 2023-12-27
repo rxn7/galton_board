@@ -8,7 +8,7 @@
 		"declaration": false,
 		"declarationMap": false,
 		"sourceMap": false,
-		"outDir": "./build/src",
+		"outDir": "build/src",
 		"removeComments": true,
 		"inlineSourceMap": false,
 		"inlineSources": false,

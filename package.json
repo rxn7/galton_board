@@ -1,7 +1,7 @@
 {
 	"name": "galton_board",
-	"description": "",
 	"version": "0.0.0",
+	"description": "",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/rxn7/galton_board.git"
@@ -11,11 +11,11 @@
 	],
 	"scripts": {
 		"minify": "minify static/index.html > build/index.html & minify static/style.css > build/style.css",
-		"build:src": "mkdir -p build && tsc --project $(pwd)",
-		"build:static": "mkdir -p build && cp -r static/* build ",
-		"build": "npm run build:src && npm run build:static",
+		"build:src": "mkdir -p build & tsc --project $(pwd)",
+		"build:static": "mkdir -p build & cp -r static/* build ",
+		"build": "npm run build:src & npm run build:static",
 		"watch:src": "tsc --watch --project $(pwd)",
-		"watch:static": "watch 'npm run build:static' ./static --ignoreDirectoryPattern='*build'",
+		"watch:static": "watch 'npm run build:static' ./static",
 		"watch": "npm run watch:static & npm run watch:src",
 		"deploy": "npm run build && npm run minify && gh-pages --dist build",
 		"ls": "live-server build",
@@ -23,7 +23,8 @@
 	},
 	"author": "rxn7",
 	"license": "ISC",
-	"homepage": "https://maciejniziolek.xyz",
+	"homepage": "https://github.com/rxn7/galton_board",
+	"dependencies": {},
 	"devDependencies": {
 		"gh-pages": "^6.0.0",
 		"live-server": "^1.2.2",
