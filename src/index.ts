@@ -2,7 +2,7 @@ import Ball from './ball.js'
 import Board from './board.js'
 
 const ballSpawnInterval: number = 200
-const minimunFps: number = 30
+const minimunFps: number = 60
 const minimumDeltaTime: number = 1 / minimunFps
 
 const ctx: CanvasRenderingContext2D = (document.getElementById('canvas') as HTMLCanvasElement).getContext('2d', { alpha: false, willReadFrequently: false }) as CanvasRenderingContext2D
