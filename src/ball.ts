@@ -6,7 +6,6 @@ import { Vector2 } from './vector2.js'
 export default class Ball {
 	public static moveTimeMs: number = 500
 	public static color: string = '#689d6a'
-	public static bounceHeight: number = 20
 
 	public queueDelete: boolean = false
 	public position: Vector2 = { x: 0, y: 0 }
@@ -18,7 +17,6 @@ export default class Ball {
 
 	public constructor(private readonly startPosition: Vector2) {
 		this.position = startPosition
-		// this.calculateNextPin()
 	}
 
 	public update(board: Board, deltaTimeMs: number): void {
@@ -28,7 +26,7 @@ export default class Ball {
 		const nextPosition: Vector2 = board.getPinPosition(this.nextPin)
 
 		const t: number = Math.min(this.timer / Ball.moveTimeMs, 1.0)
-		this.position = this.bouncePosition(MathUtils.lerpVector2(previousPosition, nextPosition, t), t)
+		this.position = this.bouncePosition(board, MathUtils.lerpVector2(previousPosition, nextPosition, t), t)
 
 		if(this.timer >= Ball.moveTimeMs) {
 			this.timer = 0.0
@@ -55,9 +53,9 @@ export default class Ball {
 		this.nextPin = board.getNextPin(this.lastPin)
 	}
 
-	private bouncePosition(position: Vector2, t: number): Vector2 {
+	private bouncePosition(board: Board, position: Vector2, t: number): Vector2 {
 		const bounce = Math.sin(t * Math.PI)
-		const bounceOffset = bounce * Ball.bounceHeight
+		const bounceOffset = bounce * board.pinRadius * 3
 
 		return {
 			x: position.x,
