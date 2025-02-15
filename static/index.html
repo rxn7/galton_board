@@ -9,7 +9,14 @@
 
 	<body>
 		<canvas id="canvas" width="500" height="500"></canvas>
+		<div id="options-container">
+			<div>
+				<label for="row-count-input">Row Count:</label>
+				<input id="row-count-input" type="number" min="2" max="100" value="8" />
+			</div>
+		</div>
 	</body>
 
 	<script type="module" src="src/index.js"></script>
+	<script type="module" src="src/options.js"></script>
 </html>

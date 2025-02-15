@@ -6,7 +6,7 @@ const minimunFps: number = 60
 const minimumDeltaTime: number = 1 / minimunFps
 
 export const ctx: CanvasRenderingContext2D = (document.getElementById('canvas') as HTMLCanvasElement).getContext('2d', { alpha: false, willReadFrequently: false }) as CanvasRenderingContext2D
-const board: Board = new Board(ctx.canvas, 19)
+let board: Board = new Board(ctx.canvas, 19)
 const balls: Array<Ball> = []
 let lastFrameTime: DOMHighResTimeStamp = 0
 
@@ -38,21 +38,26 @@ function gameLoop(time: DOMHighResTimeStamp): void {
 	board.render(ctx)
 
 	balls.forEach((ball, idx, object) => {
-		ball.update(deltaTimeMs)
+		ball.update(board, deltaTimeMs)
 
 		if(ball.queueDelete) {
 			object.splice(idx, 1)
 			return
 		}
 
-		ball.render(ctx)
+		ball.render(board, ctx)
 	})
 
 	requestAnimationFrame(gameLoop)
 }
 
 function spawnBall() {
-	balls.push(new Ball(board, { x: ctx.canvas.clientWidth * 0.5, y: -board.pinRadius }))
+	balls.push(new Ball({ x: ctx.canvas.clientWidth * 0.5, y: -board.pinRadius }))
+}
+
+export function recreateBoard(rowCount: number): void {
+	balls.length = 0
+	board = new Board(ctx.canvas, rowCount)
 }
 
 init()

@@ -1,7 +1,7 @@
 {
 	"name": "galton_board",
-	"version": "0.0.0",
 	"description": "",
+	"version": "0.0.0",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/rxn7/galton_board.git"
@@ -9,26 +9,34 @@
 	"keywords": [
 		"typescript"
 	],
+	"watch": {
+		"build_static": {
+			"patterns": [
+				"static"
+			],
+			"extensions": "css,html",
+			"quiet": false
+		}
+	},
 	"scripts": {
 		"minify": "minify static/index.html > build/index.html & minify static/style.css > build/style.css",
-		"build:src": "mkdir -p build & tsc --project $(pwd)",
-		"build:static": "mkdir -p build & cp -r static/* build ",
-		"build": "npm run build:src & npm run build:static",
+		"build:src": "mkdir -p build ; tsc --project $(pwd)",
+		"build_static": "mkdir -p build ; cp -r static/* ./build",
+		"build": "npm-run-all --parallel build:src build:static",
 		"watch:src": "tsc --watch --project $(pwd)",
-		"watch:static": "watch 'npm run build:static' ./static",
-		"watch": "npm run watch:static & npm run watch:src",
 		"deploy": "npm run build && npm run minify && gh-pages --dist build",
 		"ls": "live-server build",
-		"dev": "npm run watch & npm run ls"
+		"watch": "npm-watch",
+		"dev": "npm-run-all --parallel ls watch:src watch"
 	},
 	"author": "rxn7",
 	"license": "ISC",
-	"homepage": "https://github.com/rxn7/galton_board",
-	"dependencies": {},
+	"homepage": "https://rxn.lol",
 	"devDependencies": {
 		"gh-pages": "^6.0.0",
 		"live-server": "^1.2.2",
 		"minify": "^10.5.2",
-		"watch": "^1.0.2"
+		"npm-run-all": "^4.1.5",
+		"npm-watch": "^0.11.0"
 	}
 }
