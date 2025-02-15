@@ -14,15 +14,26 @@ export namespace MathUtils {
 		}
 	}
 
+	// Built-in implementation is too slow
 	export function maxFromArray(array: Array<number>): number {
-		if (array.length === 0) return 0
+		if(array.length === 0) return NaN
 
 		let max: number = array[0]
-
-		array.forEach(n => {
-			if (n > max) max = n
-		})
+		for(let n of array) {
+			if(n > max) max = n
+		}
 
 		return max
+	}
+
+	export function lerp(a: number, b: number, t: number): number {
+		return a + (b - a) * t
+	}
+
+	export function lerpVector2(a: Vector2, b: Vector2, t: number): Vector2 {
+		return {
+			x: lerp(a.x, b.x, t),
+			y: lerp(a.y, b.y, t),
+		}
 	}
 }

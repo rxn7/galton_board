@@ -1,11 +1,11 @@
 import Ball from './ball.js'
 import Board from './board.js'
 
-const ballSpawnInterval: number = 200
+const ballSpawnInterval: number = 1000
 const minimunFps: number = 60
 const minimumDeltaTime: number = 1 / minimunFps
 
-const ctx: CanvasRenderingContext2D = (document.getElementById('canvas') as HTMLCanvasElement).getContext('2d', { alpha: false, willReadFrequently: false }) as CanvasRenderingContext2D
+export const ctx: CanvasRenderingContext2D = (document.getElementById('canvas') as HTMLCanvasElement).getContext('2d', { alpha: false, willReadFrequently: false }) as CanvasRenderingContext2D
 const board: Board = new Board(ctx.canvas, 19)
 const balls: Array<Ball> = []
 let lastFrameTime: DOMHighResTimeStamp = 0
@@ -13,7 +13,6 @@ let lastFrameTime: DOMHighResTimeStamp = 0
 function init() {
 	ctx.imageSmoothingEnabled = true
 	ctx.imageSmoothingQuality = 'high'
-	spawnBall()
 
 	const resizeCanvas = (): void => {
 		balls.length = 0
@@ -24,6 +23,8 @@ function init() {
 
 	resizeCanvas()
 	window.addEventListener('resize', () => resizeCanvas())
+
+	setInterval(spawnBall, ballSpawnInterval)
 
 	requestAnimationFrame(gameLoop)
 }
@@ -40,7 +41,7 @@ function gameLoop(time: DOMHighResTimeStamp): void {
 	balls.forEach((ball, idx, object) => {
 		ball.update(deltaTimeMs)
 
-		if (ball.queueDelete) {
+		if(ball.queueDelete) {
 			object.splice(idx, 1)
 			return
 		}
@@ -53,7 +54,6 @@ function gameLoop(time: DOMHighResTimeStamp): void {
 
 function spawnBall() {
 	balls.push(new Ball(board, { x: ctx.canvas.clientWidth * 0.5, y: -board.pinRadius }))
-	setTimeout(spawnBall, ballSpawnInterval)
 }
 
 init()
