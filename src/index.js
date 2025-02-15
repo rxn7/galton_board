@@ -38,7 +38,7 @@ function gameLoop(time) {
 }
 function spawnBall() {
     balls.push(new Ball({ x: ctx.canvas.clientWidth * 0.5, y: -board.pinRadius }));
-    setTimeout(spawnBall, Options.ballSpawnInterval);
+    setTimeout(spawnBall, Options.ballSpawnInterval + Math.random() * Options.ballSpawnInterval * 0.1);
 }
 export function recreateBoard(rowCount) {
     balls.length = 0;

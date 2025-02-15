@@ -1,3 +1,4 @@
+import AudioSourcePool from './audioSourcePool.js';
 import { MathUtils } from './math.js';
 import { Options } from './options.js';
 class Ball {
@@ -24,6 +25,7 @@ class Ball {
                 return;
             }
             this.calculateNextPin(board);
+            Ball.bounceAudio.play();
         }
     }
     render(board, ctx) {
@@ -45,5 +47,6 @@ class Ball {
         };
     }
 }
+Ball.bounceAudio = new AudioSourcePool('audio/bounce.ogg', 15);
 Ball.color = '#689d6a';
 export default Ball;
