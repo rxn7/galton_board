@@ -1,27 +1,49 @@
 import { MathUtils } from './math.js';
+import { Options } from './options.js';
 class Ball {
-    constructor(board, startPosition) {
-        this.board = board;
+    constructor(startPosition) {
+        this.startPosition = startPosition;
         this.queueDelete = false;
-        this.lastCollidedPinRowIdx = -1;
         this.position = { x: 0, y: 0 };
-        this.direction = { x: 0, y: 1 };
+        this.timer = 0.0;
+        this.lastPin = undefined;
+        this.nextPin = { row: 0, idx: 0 };
         this.position = startPosition;
     }
-    update(deltaTimeMs) {
-        this.position.x += this.direction.x * deltaTimeMs * Ball.moveSpeed;
-        this.position.y += this.direction.y * deltaTimeMs * Ball.moveSpeed;
-        if (this.board.isBallCollidingWithPins(this)) {
-            this.direction = MathUtils.directionFromAngle(Math.random() < 0.5 ? 45 : 135);
+    update(board, deltaTimeMs) {
+        this.timer += deltaTimeMs;
+        const previousPosition = this.lastPin ? board.getPinPosition(this.lastPin) : this.startPosition;
+        const nextPosition = board.getPinPosition(this.nextPin);
+        const t = Math.min(this.timer / Options.ballBounceTime, 1.0);
+        this.position = this.bouncePosition(board, MathUtils.lerpVector2(previousPosition, nextPosition, t), t);
+        if (t >= 1.0) {
+            this.timer = 0.0;
+            if (this.nextPin.row >= board.rowCount - 1) {
+                this.queueDelete = true;
+                board.registerHit(this.nextPin.idx);
+                return;
+            }
+            this.calculateNextPin(board);
         }
     }
-    render(ctx) {
+    render(board, ctx) {
         ctx.beginPath();
         ctx.fillStyle = Ball.color;
-        ctx.arc(this.position.x, this.position.y, this.board.pinRadius, 0, 2 * Math.PI, false);
+        ctx.arc(this.position.x, this.position.y, board.pinRadius, 0, 2 * Math.PI, false);
         ctx.fill();
     }
+    calculateNextPin(board) {
+        this.lastPin = this.nextPin;
+        this.nextPin = board.getNextPin(this.lastPin);
+    }
+    bouncePosition(board, position, t) {
+        const bounce = Math.sin(t * Math.PI);
+        const bounceOffset = bounce * board.pinRadius * 3;
+        return {
+            x: position.x,
+            y: position.y - bounceOffset
+        };
+    }
 }
-Ball.moveSpeed = 1;
 Ball.color = '#689d6a';
 export default Ball;

@@ -1,64 +1,46 @@
 import Ball from './ball.js';
+import { ctx } from './index.js';
 import { MathUtils } from './math.js';
 export default class Board {
     constructor(canvas, rowCount = 8) {
         this.rowCount = rowCount;
         this.yOffset = 10;
-        this.lastRowStartX = 0;
         this.pinSpacing = 8;
         this.pinRadius = 8;
-        this.graphSize = 100;
         this.rowHeight = this.pinSpacing * 2 + this.pinRadius * 2;
-        this.colHitCount = [];
+        this.columnsHitCount = [];
+        this.graphSize = 100;
+        for (let i = 0; i < this.rowCount; ++i) {
+            this.columnsHitCount.push(0);
+        }
         this.onCanvasResize(canvas);
-        for (let i = 0; i < this.rowCount; ++i)
-            this.colHitCount.push(0);
     }
     onCanvasResize(canvas) {
         const minSize = Math.min(canvas.clientWidth, canvas.clientHeight);
         this.pinSpacing = minSize / (this.rowCount * 12);
         this.pinRadius = minSize / (this.rowCount * 8);
         this.rowHeight = this.pinSpacing * 2 + this.pinRadius * 2;
-        this.lastRowStartX = canvas.clientWidth * 0.5 - (this.rowCount - 1) * this.rowHeight;
         this.graphSize = minSize / 10;
         const verticalSize = this.rowCount * this.rowHeight + this.graphSize;
         this.yOffset = (canvas.clientHeight - verticalSize) * 0.5;
     }
-    isBallCollidingWithPins(ball) {
-        if (ball.position.y + this.pinRadius * 2 < this.yOffset)
-            return false;
-        const rowIdx = Math.floor((ball.position.y - this.yOffset - this.pinSpacing) / this.rowHeight);
-        if (ball.lastCollidedPinRowIdx === rowIdx)
-            return false;
-        const isLastRow = rowIdx === this.rowCount - 1;
-        if (isLastRow) {
-            const colIdx = Math.round((ball.position.x - this.lastRowStartX) / (this.rowHeight * 2));
-            ++this.colHitCount[colIdx];
-            ball.queueDelete = true;
-        }
-        ball.lastCollidedPinRowIdx = rowIdx;
-        return true;
-    }
     render(ctx) {
-        const maxHitCount = MathUtils.maxFromArray(this.colHitCount);
+        const maxHitCount = MathUtils.maxFromArray(this.columnsHitCount);
         for (let row = 0; row < this.rowCount; ++row) {
-            const startX = ctx.canvas.clientWidth * 0.5 - row * this.rowHeight;
             for (let pin = 0; pin < row + 1; ++pin) {
-                const x = startX + pin * this.rowHeight * 2;
-                const y = this.pinRadius + row * this.rowHeight + this.yOffset;
+                const position = this.getPinPosition({ row: row, idx: pin });
                 const isLastRow = row === this.rowCount - 1;
                 let radius = this.pinRadius;
                 if (isLastRow) {
                     radius *= 2;
-                    const ratio = this.colHitCount[pin] / maxHitCount;
-                    ctx.beginPath();
-                    ctx.fillStyle = Ball.color;
-                    ctx.roundRect(x - this.pinRadius, y, this.pinRadius * 2, ratio * this.graphSize, [0, 0, this.pinRadius, this.pinRadius]);
-                    ctx.fill();
-                    ctx.beginPath();
+                    const ratio = this.columnsHitCount[pin] / maxHitCount;
+                    this.renderGraphLine(ctx, position.x, position.y, ratio);
+                }
+                else {
+                    radius *= 0.5;
                 }
                 ctx.beginPath();
-                ctx.arc(x, y, radius, 0, 2 * Math.PI);
+                ctx.arc(position.x, position.y, radius, 0, 2 * Math.PI);
                 ctx.fillStyle = '#cc241d';
                 ctx.fill();
                 if (isLastRow) {
@@ -66,9 +48,43 @@ export default class Board {
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'top';
                     ctx.font = `bold ${radius}px monospace`;
-                    ctx.fillText(this.colHitCount[pin].toString(), x, y - radius * 0.5, radius * 2);
+                    ctx.fillText(this.columnsHitCount[pin].toString(), position.x, position.y - radius * 0.5, radius * 2);
                 }
             }
         }
+    }
+    registerHit(row) {
+        ++this.columnsHitCount[row];
+    }
+    renderGraphLine(ctx, x, y, ratio) {
+        ctx.beginPath();
+        ctx.fillStyle = Ball.color;
+        ctx.roundRect(x - this.pinRadius, y, this.pinRadius * 2, ratio * this.graphSize, [0, 0, this.pinRadius, this.pinRadius]);
+        ctx.fill();
+        ctx.beginPath();
+    }
+    getNextPin(lastPin) {
+        const nextRow = lastPin.row + 1;
+        let nextIdx;
+        if (lastPin.idx === 0) {
+            nextIdx = Math.random() > 0.5 ? 0 : 1;
+        }
+        else if (lastPin.idx === lastPin.row) {
+            nextIdx = Math.random() > 0.5 ? nextRow - 1 : nextRow;
+        }
+        else {
+            nextIdx = lastPin.idx + (Math.random() > 0.5 ? 0 : 1);
+        }
+        return {
+            row: nextRow,
+            idx: nextIdx
+        };
+    }
+    getPinPosition(pin) {
+        const startX = ctx.canvas.clientWidth * 0.5 - pin.row * this.rowHeight;
+        return {
+            x: startX + pin.idx * this.rowHeight * 2,
+            y: this.pinRadius + pin.row * this.rowHeight + this.yOffset
+        };
     }
 }

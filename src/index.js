@@ -1,18 +1,16 @@
 import Ball from './ball.js';
 import Board from './board.js';
-const ballSpawnInterval = 200;
-const minimunFps = 30;
+import { Options } from './options.js';
+const minimunFps = 60;
 const minimumDeltaTime = 1 / minimunFps;
-const ctx = document.getElementById('canvas').getContext('2d', { alpha: false, willReadFrequently: false });
-const board = new Board(ctx.canvas, 19);
+export const ctx = document.getElementById('canvas').getContext('2d', { alpha: false, willReadFrequently: false });
+let board = new Board(ctx.canvas, 19);
 const balls = [];
 let lastFrameTime = 0;
 function init() {
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    spawnBall();
     const resizeCanvas = () => {
-        balls.length = 0;
         ctx.canvas.width = window.innerWidth;
         ctx.canvas.height = window.innerHeight;
         board.onCanvasResize(ctx.canvas);
@@ -20,6 +18,7 @@ function init() {
     resizeCanvas();
     window.addEventListener('resize', () => resizeCanvas());
     requestAnimationFrame(gameLoop);
+    spawnBall();
 }
 function gameLoop(time) {
     const deltaTimeMs = Math.max(time - lastFrameTime, minimumDeltaTime);
@@ -28,17 +27,21 @@ function gameLoop(time) {
     ctx.fillRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
     board.render(ctx);
     balls.forEach((ball, idx, object) => {
-        ball.update(deltaTimeMs);
+        ball.update(board, deltaTimeMs);
         if (ball.queueDelete) {
             object.splice(idx, 1);
             return;
         }
-        ball.render(ctx);
+        ball.render(board, ctx);
     });
     requestAnimationFrame(gameLoop);
 }
 function spawnBall() {
-    balls.push(new Ball(board, { x: ctx.canvas.clientWidth * 0.5, y: -board.pinRadius }));
-    setTimeout(spawnBall, ballSpawnInterval);
+    balls.push(new Ball({ x: ctx.canvas.clientWidth * 0.5, y: -board.pinRadius }));
+    setTimeout(spawnBall, Options.ballSpawnInterval);
+}
+export function recreateBoard(rowCount) {
+    balls.length = 0;
+    board = new Board(ctx.canvas, rowCount);
 }
 init();
