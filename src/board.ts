@@ -1,6 +1,6 @@
-import Ball from './ball.js'
-import { ctx } from './index.js'
-import { MathUtils } from './math.js'
+import Ball from './ball'
+import { ctx } from './index'
+import { MathUtils } from './math'
 import { Pin } from './pin.js'
 import { Vector2 } from './vector2.js'
 

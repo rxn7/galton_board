@@ -1,10 +1,12 @@
-import Board from './board.js'
-import { MathUtils } from './math.js'
-import { Options } from './options.js'
-import { Pin } from './pin.js'
-import { Vector2 } from './vector2.js'
+import AudioSourcePool from './audioSourcePool'
+import Board from './board'
+import { MathUtils } from './math'
+import { Options } from './options'
+import { Pin } from './pin'
+import { Vector2 } from './vector2'
 
 export default class Ball {
+	private static bounceAudio: AudioSourcePool = new AudioSourcePool('audio/bounce.ogg', 15)
 	public static color: string = '#689d6a'
 
 	public queueDelete: boolean = false
@@ -38,6 +40,7 @@ export default class Ball {
 			}
 
 			this.calculateNextPin(board)
+			Ball.bounceAudio.play()
 		}
 	}
 

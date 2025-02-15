@@ -19,24 +19,22 @@
 		}
 	},
 	"scripts": {
-		"minify": "minify static/index.html > build/index.html & minify static/style.css > build/style.css",
-		"build:src": "mkdir -p build ; tsc --project $(pwd)",
-		"build_static": "mkdir -p build ; cp -r static/* ./build",
-		"build": "npm-run-all --parallel build:src build:static",
-		"watch:src": "tsc --watch --project $(pwd)",
-		"deploy": "npm run build && npm run minify && gh-pages --dist build",
-		"ls": "live-server build",
-		"watch": "npm-watch",
-		"dev": "npm-run-all --parallel ls watch:src watch"
+		"build": "webpack --mode production",
+		"dev": "webpack-dev-server --mode development",
+		"deploy": "npm run build && gh-pages --dist build"
 	},
 	"author": "rxn7",
 	"license": "ISC",
 	"homepage": "https://rxn.lol",
 	"devDependencies": {
 		"gh-pages": "^6.0.0",
-		"live-server": "^1.2.2",
-		"minify": "^10.5.2",
-		"npm-run-all": "^4.1.5",
-		"npm-watch": "^0.11.0"
+		"html-webpack-plugin": "^5.6.3",
+		"ts-loader": "^9.5.2",
+		"webpack": "^5.98.0",
+		"webpack-cli": "^6.0.1",
+		"webpack-dev-server": "^5.2.0"
+	},
+	"dependencies": {
+		"ts-audio": "^0.7.7"
 	}
 }

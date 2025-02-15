@@ -1,5 +1,4 @@
-import Ball from "./ball.js"
-import { recreateBoard } from "./index.js"
+import { recreateBoard } from "./index"
 
 export namespace Options {
 	const rowCountInput: HTMLInputElement = document.getElementById('row-count-input') as HTMLInputElement
