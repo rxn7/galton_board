@@ -15,7 +15,6 @@ function init() {
 	ctx.imageSmoothingQuality = 'high'
 
 	const resizeCanvas = (): void => {
-		balls.length = 0
 		ctx.canvas.width = window.innerWidth
 		ctx.canvas.height = window.innerHeight
 		board.onCanvasResize(ctx.canvas)

@@ -24,7 +24,6 @@ export default class Ball {
 	public update(deltaTimeMs: number): void {
 		this.timer += deltaTimeMs
 
-
 		const previousPosition: Vector2 = this.lastPin ? this.board.getPinPosition(this.lastPin) : this.startPosition
 		const nextPosition: Vector2 = this.board.getPinPosition(this.nextPin)
 
