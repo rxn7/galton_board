@@ -1,10 +1,10 @@
 import Board from './board.js'
 import { MathUtils } from './math.js'
+import { Options } from './options.js'
 import { Pin } from './pin.js'
 import { Vector2 } from './vector2.js'
 
 export default class Ball {
-	public static moveTimeMs: number = 500
 	public static color: string = '#689d6a'
 
 	public queueDelete: boolean = false
@@ -25,10 +25,10 @@ export default class Ball {
 		const previousPosition: Vector2 = this.lastPin ? board.getPinPosition(this.lastPin) : this.startPosition
 		const nextPosition: Vector2 = board.getPinPosition(this.nextPin)
 
-		const t: number = Math.min(this.timer / Ball.moveTimeMs, 1.0)
+		const t: number = Math.min(this.timer / Options.ballBounceTime, 1.0)
 		this.position = this.bouncePosition(board, MathUtils.lerpVector2(previousPosition, nextPosition, t), t)
 
-		if(this.timer >= Ball.moveTimeMs) {
+		if(t >= 1.0) {
 			this.timer = 0.0
 
 			if(this.nextPin.row >= board.rowCount-1) {

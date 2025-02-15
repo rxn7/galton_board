@@ -1,7 +1,7 @@
 import Ball from './ball.js'
 import Board from './board.js'
+import { Options } from './options.js'
 
-const ballSpawnInterval: number = 1000
 const minimunFps: number = 60
 const minimumDeltaTime: number = 1 / minimunFps
 
@@ -23,9 +23,9 @@ function init() {
 	resizeCanvas()
 	window.addEventListener('resize', () => resizeCanvas())
 
-	setInterval(spawnBall, ballSpawnInterval)
-
 	requestAnimationFrame(gameLoop)
+
+	spawnBall()
 }
 
 function gameLoop(time: DOMHighResTimeStamp): void {
@@ -53,6 +53,7 @@ function gameLoop(time: DOMHighResTimeStamp): void {
 
 function spawnBall() {
 	balls.push(new Ball({ x: ctx.canvas.clientWidth * 0.5, y: -board.pinRadius }))
+	setTimeout(spawnBall, Options.ballSpawnInterval)
 }
 
 export function recreateBoard(rowCount: number): void {

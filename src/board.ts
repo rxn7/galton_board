@@ -47,6 +47,8 @@ export default class Board {
 					radius *= 2
 					const ratio: number = this.columnsHitCount[pin] / maxHitCount
 					this.renderGraphLine(ctx, position.x, position.y, ratio)
+				} else {
+					radius *= 0.5
 				}
 
 				ctx.beginPath()
