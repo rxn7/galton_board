@@ -54,9 +54,12 @@ export default class Board {
 	public render(ctx: CanvasRenderingContext2D): void {
 		let maxHitCount: number = 0
         this.hitPins.forEach((hitPin: HitPin) => {
-            if(hitPin.hitCount > maxHitCount)
+            if(hitPin.hitCount > maxHitCount) {
                 maxHitCount = hitPin.hitCount
+			}
         })
+
+		this.renderDistribution(ctx)
 
 		for(let row: number = 0; row < this.rowCount; ++row) {
 			for(let pin: number = 0; pin < row + 1; ++pin) {
@@ -115,8 +118,12 @@ export default class Board {
 
 		return {
 			x: startX + pin.idx * this.rowHeight * 2,
-			y: this.pinRadius + pin.row * this.rowHeight + this.yOffset
+			y: this.getRowY(pin.row)
 		}
+	}
+
+	public getRowY(row: number): number {
+		return this.pinRadius + row * this.rowHeight + this.yOffset
 	}
 
 	public simulate(ballCount: number): void {
@@ -134,7 +141,7 @@ export default class Board {
 	}
 
     private renderPin(data: PinRenderData): void {
-        ctx.beginPath()
+		ctx.beginPath()
         ctx.arc(data.position.x, data.position.y, data.radius, 0, 2 * Math.PI)
         ctx.fillStyle = data.color
         ctx.fill()
@@ -154,6 +161,37 @@ export default class Board {
 		ctx.roundRect(x - this.pinRadius, y, this.pinRadius * 2, ratio * this.graphSize, [0, 0, this.pinRadius, this.pinRadius])
 		ctx.fill()
 		ctx.beginPath()
+	}
+	
+	private renderDistribution(ctx: CanvasRenderingContext2D): void {
+		const leftPin: Pin = { row: this.rowCount - 1, idx: 0 }
+		const rightPin: Pin = { row: this.rowCount - 1, idx: this.rowCount - 1 }
+		const lineWidth: number = 4
+		const startX: number = this.getPinPosition(leftPin).x - this.pinRadius * 2
+		const startY: number = this.getRowY(this.rowCount - 1) + lineWidth * 0.5
+		const endX: number = this.getPinPosition(rightPin).x + this.pinRadius * 2
+		const graphWidth: number = endX - startX
+		const maxProbability: number = MathUtils.binomialDistribution(this.rowCount - 1, Math.floor(this.rowCount / 2), 0.5)
+		
+		ctx.beginPath()
+		ctx.moveTo(startX, startY)
+
+		const segments: number = 100
+		const step: number = graphWidth / segments
+		for(let i: number = 1; i <= segments; ++i) {
+			const x: number = startX + i * step
+			const k: number = ((x - startX) / graphWidth) * (this.rowCount - 1)
+
+			const binomialProbability: number = MathUtils.binomialDistribution(this.rowCount - 1, k, 0.5)
+			const normalizedProbability: number = binomialProbability / maxProbability
+
+            const y: number = startY + normalizedProbability * (this.graphSize  + lineWidth * 0.5)
+			ctx.lineTo(x, y)
+        }
+
+        ctx.strokeStyle = '#458588'
+        ctx.lineWidth = 2
+        ctx.stroke()
 	}
 
     private handleHitPinAnimation(pin: number, data: PinRenderData): void {
