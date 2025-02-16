@@ -9,15 +9,6 @@
 	"keywords": [
 		"typescript"
 	],
-	"watch": {
-		"build_static": {
-			"patterns": [
-				"static"
-			],
-			"extensions": "css,html",
-			"quiet": false
-		}
-	},
 	"scripts": {
 		"build": "webpack --mode production",
 		"dev": "webpack-dev-server --mode development",
@@ -27,14 +18,13 @@
 	"license": "ISC",
 	"homepage": "https://rxn.lol",
 	"devDependencies": {
+		"css-loader": "^7.1.2",
+		"file-loader": "^6.2.0",
 		"gh-pages": "^6.0.0",
 		"html-webpack-plugin": "^5.6.3",
 		"ts-loader": "^9.5.2",
 		"webpack": "^5.98.0",
 		"webpack-cli": "^6.0.1",
 		"webpack-dev-server": "^5.2.0"
-	},
-	"dependencies": {
-		"ts-audio": "^0.7.7"
 	}
 }

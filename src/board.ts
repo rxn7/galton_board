@@ -3,8 +3,10 @@ import { ctx } from './index'
 import { MathUtils } from './math'
 import { Pin } from './pin.js'
 import { Vector2 } from './vector2.js'
+import Sound from './audio'
 
 export default class Board {
+	private static hitSound: Sound = new Sound('audio/hit.ogg', 0.1)
 	public yOffset: number = 10
 	public pinSpacing: number = 8
 	public pinRadius: number = 8
@@ -27,7 +29,7 @@ export default class Board {
 		this.pinSpacing = minSize / (this.rowCount * 12)
 		this.pinRadius = minSize / (this.rowCount * 8)
 		this.rowHeight = this.pinSpacing * 2 + this.pinRadius * 2
-		this.graphSize = minSize / 10
+		this.graphSize = minSize / 2.5
 
 		const verticalSize: number = this.rowCount * this.rowHeight + this.graphSize
 		this.yOffset = (canvas.clientHeight - verticalSize) * 0.5
@@ -69,11 +71,12 @@ export default class Board {
 
 	public registerHit(row: number): void {
 		++this.columnsHitCount[row]
+		Board.hitSound.play(0.5 + Math.random() * 1.0)
 	}
 
 	private renderGraphLine(ctx: CanvasRenderingContext2D, x: number, y: number, ratio: number): void {
 		ctx.beginPath()
-		ctx.fillStyle = Ball.color
+		ctx.fillStyle = '#fbf1c7'
 		ctx.roundRect(x - this.pinRadius, y, this.pinRadius * 2, ratio * this.graphSize, [0, 0, this.pinRadius, this.pinRadius])
 		ctx.fill()
 		ctx.beginPath()

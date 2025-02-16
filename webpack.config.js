@@ -1,4 +1,5 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
 	entry: './src/index.ts',
@@ -9,6 +10,12 @@ module.exports = {
 				use: 'ts-loader',
 				exclude: /node_modules/,
 			},
+            {
+              test: /\.css$/i,
+              use: [
+				  {loader: 'style-loader', options: {injectType: 'singletonStyleTag'}}
+				  , 'css-loader'],
+            },
 		],
 	},
 	resolve: {
@@ -19,8 +26,12 @@ module.exports = {
 		path: path.resolve(__dirname, 'build'),
 	},
 	devServer: {
-		static: path.join(__dirname, "build"),
+		static: path.join(__dirname, "static"),
 		compress: true,
 		port: 4000,
 	},
+    plugins: [new HtmlWebpackPlugin({
+		template: './static/index.html',
+		filename: 'index.html',
+    })],
 };

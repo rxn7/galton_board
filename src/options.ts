@@ -1,4 +1,4 @@
-import { recreateBoard } from "./index"
+import { board, recreateBoard } from "./index"
 
 export namespace Options {
 	const rowCountInput: HTMLInputElement = document.getElementById('row-count-input') as HTMLInputElement
@@ -7,19 +7,23 @@ export namespace Options {
 		recreateBoard(value)
 	})
 
-	export let ballBounceTime: number = 500
+	export let ballBounceTime: number = 200
 	const ballBounceTimeInput: HTMLInputElement = document.getElementById('ball-bounce-time-input') as HTMLInputElement
-	ballBounceTimeInput.value = ballBounceTime.toString()
 	ballBounceTimeInput.addEventListener('input', (evt: Event) => {
 		const value: number = parseInt((evt.target as HTMLInputElement).value)
 		ballBounceTime = value
 	})
 
-	export let ballSpawnInterval: number = 500
+	export let ballSpawnInterval: number = 150
 	const ballSpawnIntervalInput: HTMLInputElement = document.getElementById('ball-spawn-interval-input') as HTMLInputElement
-	ballSpawnIntervalInput.value = ballSpawnInterval.toString()
 	ballSpawnIntervalInput.addEventListener('input', (evt: Event) => {
 		const value: number = parseInt((evt.target as HTMLInputElement).value)
 		ballSpawnInterval = value
 	})
+
+	export function init() {
+		ballSpawnIntervalInput.value = ballSpawnInterval.toString()
+		ballBounceTimeInput.value = ballBounceTime.toString()
+		rowCountInput.value = board.rowCount.toString()
+	}
 }

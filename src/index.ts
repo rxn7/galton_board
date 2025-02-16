@@ -4,9 +4,10 @@ import { Options } from './options'
 
 const minimunFps: number = 60
 const minimumDeltaTime: number = 1 / minimunFps
+const maximumDeltaTime: number = 100
 
 export const ctx: CanvasRenderingContext2D = (document.getElementById('canvas') as HTMLCanvasElement).getContext('2d', { alpha: false, willReadFrequently: false }) as CanvasRenderingContext2D
-let board: Board = new Board(ctx.canvas, 19)
+export let board: Board = new Board(ctx.canvas, 19)
 const balls: Array<Ball> = []
 let lastFrameTime: DOMHighResTimeStamp = 0
 
@@ -20,16 +21,23 @@ function init() {
 		board.onCanvasResize(ctx.canvas)
 	}
 
+	Options.init()
+
 	resizeCanvas()
 	window.addEventListener('resize', () => resizeCanvas())
 
 	requestAnimationFrame(gameLoop)
-
 	spawnBall()
 }
 
 function gameLoop(time: DOMHighResTimeStamp): void {
-	const deltaTimeMs: number = Math.max(time - lastFrameTime, minimumDeltaTime)
+	requestAnimationFrame(gameLoop)
+
+	if(document.hidden) {
+		return
+	}
+
+	const deltaTimeMs: number = Math.min(maximumDeltaTime, Math.max(time - lastFrameTime, minimumDeltaTime))
 	lastFrameTime = time
 
 	ctx.fillStyle = '#282828'
@@ -47,8 +55,6 @@ function gameLoop(time: DOMHighResTimeStamp): void {
 
 		ball.render(board, ctx)
 	})
-
-	requestAnimationFrame(gameLoop)
 }
 
 function spawnBall() {
