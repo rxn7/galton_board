@@ -1,12 +1,13 @@
-import Ball from './ball'
 import { ctx } from './index'
 import { MathUtils } from './math'
 import { Pin } from './pin.js'
 import { Vector2 } from './vector2.js'
 import Sound from './audio'
 
+import hitAudioResource from './assets/audio/hit.ogg'
+const hitSound: Sound = new Sound(hitAudioResource, 0.1)
+
 export default class Board {
-	private static hitSound: Sound = new Sound('audio/hit.ogg', 0.1)
 	public yOffset: number = 10
 	public pinSpacing: number = 8
 	public pinRadius: number = 8
@@ -71,7 +72,7 @@ export default class Board {
 
 	public registerHit(row: number): void {
 		++this.columnsHitCount[row]
-		Board.hitSound.play(0.5 + Math.random() * 1.0)
+		hitSound.play(0.5 + Math.random() * 1.0)
 	}
 
 	private renderGraphLine(ctx: CanvasRenderingContext2D, x: number, y: number, ratio: number): void {

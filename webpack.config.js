@@ -10,20 +10,27 @@ module.exports = {
 				use: 'ts-loader',
 				exclude: /node_modules/,
 			},
-            {
-              test: /\.css$/i,
-              use: [
-				  {loader: 'style-loader', options: {injectType: 'singletonStyleTag'}}
-				  , 'css-loader'],
-            },
+			{
+				test: /\.css$/i,
+				use: ['style-loader', 'css-loader']
+			},
+			{
+				test: /\.(ogg|mp3)$/i,
+				include: path.resolve(__dirname, 'src/assets/audio'),
+				type: 'asset/resource',
+				generator: {
+					filename: 'assets/audio/[name][ext]',
+				}
+			},
 		],
 	},
 	resolve: {
-		extensions: ['.tsx', '.ts', '.js'],
+		extensions: ['.ts', '.js'],
 	},
 	output: {
 		filename: 'bundle.js',
 		path: path.resolve(__dirname, 'build'),
+		assetModuleFilename: "assets/[name][ext]"
 	},
 	devServer: {
 		static: path.join(__dirname, "static"),
@@ -31,7 +38,8 @@ module.exports = {
 		port: 4000,
 	},
     plugins: [new HtmlWebpackPlugin({
-		template: './static/index.html',
+		template: './src/index.html',
 		filename: 'index.html',
+		chunks: ['index'],
     })],
 };
