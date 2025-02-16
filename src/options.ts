@@ -21,6 +21,16 @@ export namespace Options {
 		ballSpawnInterval = value
 	})
 
+	export let simulateButton: HTMLButtonElement = document.getElementById('simulate-button') as HTMLButtonElement
+	simulateButton.addEventListener('click', () => {
+		const input: string | null= prompt("How many balls do you want to simulate?", "100000")
+		const ballCount: number = parseInt(input || "")
+
+		if(!isNaN(ballCount) && ballCount > 0) {
+			board.simulate(ballCount)
+		}
+	})
+
 	export function init() {
 		ballSpawnIntervalInput.value = ballSpawnInterval.toString()
 		ballBounceTimeInput.value = ballBounceTime.toString()

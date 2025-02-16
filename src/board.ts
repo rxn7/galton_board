@@ -82,12 +82,14 @@ export default class Board {
 		}
 	}
 
-	public registerHit(row: number): void {
-        const hitPin: HitPin = this.hitPins[row]
+	public registerHit(idx: number, playSound: boolean = true): void {
+        const hitPin: HitPin = this.hitPins[idx]
 		++hitPin.hitCount
         hitPin.lastTimeHit = performance.now()
 
-		hitSound.play(0.5 + Math.random() * 1.0)
+		if(playSound) {
+			hitSound.play(0.5 + Math.random() * 1.0)
+		}
 	}
 
 	public getNextPin(lastPin: Pin): Pin {
@@ -115,6 +117,20 @@ export default class Board {
 			x: startX + pin.idx * this.rowHeight * 2,
 			y: this.pinRadius + pin.row * this.rowHeight + this.yOffset
 		}
+	}
+
+	public simulate(ballCount: number): void {
+		for(let i: number = 0; i < ballCount; ++i) {
+			let pin: Pin = { row: 0, idx: 0 }
+
+			while(pin.row < this.rowCount - 1) {
+				pin = this.getNextPin(pin)
+			}
+
+			this.registerHit(pin.idx, false)
+		}
+
+		hitSound.play(0.5 + Math.random() * 1.0)
 	}
 
     private renderPin(data: PinRenderData): void {
