@@ -1,1 +1,21 @@
-<!doctype html><html lang="en"><head><title>Galton Board</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/><meta charset="UTF-8"/><link rel="stylesheet" href="style.css"/><script defer="defer" src="bundle.js"></script></head><body><canvas id="canvas" width="500" height="500"></canvas><div id="options-container"><div><label for="row-count-input">Rows:</label> <input id="row-count-input" type="number" min="2" max="100" value="16" autocomplete="off"/><br><label for="ball-bounce-time-input">Ball bounce time (ms):</label> <input id="ball-bounce-time-input" type="number" min="0" max="5000" value="500" autocomplete="off"/><br><label for="ball-spawn-interval-input">Ball spawn interval (ms):</label> <input id="ball-spawn-interval-input" type="number" min="0" max="5000" value="500" autocomplete="off"/></div></div></body><script src="bundle.js"></script></html>
+<!doctype html><html lang="en"><head><title>Galton Board</title><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/><meta charset="UTF-8"/></head><body><canvas id="canvas" width="500" height="500"></canvas><div id="options-container"><div><label for="row-count-input">Rows:</label> <input id="row-count-input" type="number" min="2" max="100" value="16" autocomplete="off"/><br><label for="ball-bounce-time-input">Ball bounce time (ms):</label> <input id="ball-bounce-time-input" type="number" min="0" max="5000" value="500" autocomplete="off"/><br><label for="ball-spawn-interval-input">Ball spawn interval (ms):</label> <input id="ball-spawn-interval-input" type="number" min="0" max="5000" value="500" autocomplete="off"/></div></div></body><style>body {
+			padding: 0;
+			margin: 0;
+		}
+
+		#canvas {
+			background-color: blac;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+		}
+
+		#options-container {
+			font: monospace;
+			color: white;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}</style><script src="bundle.js"></script></html>
