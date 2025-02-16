@@ -36,4 +36,20 @@ export namespace MathUtils {
 			y: lerp(a.y, b.y, t),
 		}
 	}
+    
+    export function lerpColor(from: string, to: string, t: number): string {
+        const r1 = parseInt(from.substring(1, 3), 16)
+        const g1 = parseInt(from.substring(3, 5), 16)
+        const b1 = parseInt(from.substring(5, 7), 16)
+
+        const r2 = parseInt(to.substring(1, 3), 16)
+        const g2 = parseInt(to.substring(3, 5), 16)
+        const b2 = parseInt(to.substring(5, 7), 16)
+
+        const r = Math.round(lerp(r1, r2, t))
+        const g = Math.round(lerp(g1, g2, t))
+        const b = Math.round(lerp(b1, b2, t))
+
+        return `rgb(${r},${g},${b})`
+    }
 }

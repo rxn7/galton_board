@@ -2,8 +2,6 @@ import Ball from './ball'
 import Board from './board'
 import { Options } from './options'
 
-const minimunFps: number = 60
-const minimumDeltaTime: number = 1 / minimunFps
 const maximumDeltaTime: number = 100
 
 export const ctx: CanvasRenderingContext2D = (document.getElementById('canvas') as HTMLCanvasElement).getContext('2d', { alpha: false, willReadFrequently: false }) as CanvasRenderingContext2D
@@ -37,7 +35,7 @@ function gameLoop(time: DOMHighResTimeStamp): void {
 		return
 	}
 
-	const deltaTimeMs: number = Math.min(maximumDeltaTime, Math.max(time - lastFrameTime, minimumDeltaTime))
+	const deltaTimeMs: number = Math.min(time - lastFrameTime, maximumDeltaTime)
 	lastFrameTime = time
 
 	ctx.fillStyle = '#282828'
