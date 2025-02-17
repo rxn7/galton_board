@@ -10,12 +10,16 @@ const balls: Array<Ball> = []
 let lastFrameTime: DOMHighResTimeStamp = 0
 
 function init() {
-	ctx.imageSmoothingEnabled = true
-	ctx.imageSmoothingQuality = 'high'
+	ctx.imageSmoothingEnabled = false
+	ctx.translate(0.5, 0.5) // Offset by half pixel to fix blurriness
 
 	const resizeCanvas = (): void => {
-		ctx.canvas.width = window.innerWidth
-		ctx.canvas.height = window.innerHeight
+		const ratio: number = Math.ceil(window.devicePixelRatio)
+		ctx.canvas.width = window.innerWidth * ratio
+		ctx.canvas.height = window.innerHeight * ratio
+		ctx.canvas.style.width = `${window.innerWidth}px`
+		ctx.canvas.style.height = `${window.innerHeight}px`
+		ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
 		board.onCanvasResize(ctx.canvas)
 	}
 

@@ -1,6 +1,6 @@
 import { ctx } from './index'
 import { MathUtils } from './math'
-import { Pin } from './pin.js'
+import { PinPosition } from './pin.js'
 import { Vector2 } from './vector2.js'
 import Sound from './audio'
 
@@ -10,7 +10,10 @@ const hitSound: Sound = new Sound(hitAudioResource, 0.1)
 // Pin in the last row
 type HitPin = {
     hitCount: number
-    lastTimeHit: number
+}
+
+type Pin = {
+	lastTimeHit: number
 }
 
 type PinRenderData = {
@@ -20,21 +23,31 @@ type PinRenderData = {
 }
 
 export default class Board {
-    private static readonly hitPinAnimationDuration: number = 100
+    private static readonly hitPinAnimationDuration: number = 200
+    private static readonly normalPinAnimationDuration: number = 100
 
 	public yOffset: number = 10
 	public pinSpacing: number = 8
 	public pinRadius: number = 8
 	public rowHeight: number = this.pinSpacing * 2 + this.pinRadius * 2
 
-    private hitPins: Array<HitPin> = []
+    private hitPins: HitPin[] = []
+	private pins: Pin[][] = new Array(this.rowCount)
 	private graphSize: number = 0
 
 	constructor(canvas: HTMLCanvasElement, public readonly rowCount: number = 8) {
         this.hitPins = new Array<HitPin>(this.rowCount)
+
         for(let i: number = 0; i < this.rowCount; ++i) {
-            this.hitPins[i] = { hitCount: 0, lastTimeHit: -1 }
+            this.hitPins[i] = { hitCount: 0 }
+
+			this.pins[i] = new Array<Pin>(i + 1)
+			for(let j: number = 0; j < i + 1; ++j) {
+				this.pins[i][j] = { lastTimeHit: -1 }
+			}
         }
+
+		console.log(this.pins)
 
 		this.onCanvasResize(canvas)
 	}
@@ -42,8 +55,10 @@ export default class Board {
 	public onCanvasResize(canvas: HTMLCanvasElement): void {
 		const minSize: number = Math.min(canvas.clientWidth, canvas.clientHeight)
 
+		// TODO: Automagically calculate perfect ratios for everything
+
 		this.pinSpacing = minSize / (this.rowCount * 10)
-		this.pinRadius = minSize / (this.rowCount * 5)
+		this.pinRadius = minSize / (this.rowCount * 7)
 		this.rowHeight = this.pinSpacing * 2 + this.pinRadius * 2
 		this.graphSize = minSize / 4
 
@@ -62,40 +77,46 @@ export default class Board {
 		this.renderDistribution(ctx)
 
 		for(let row: number = 0; row < this.rowCount; ++row) {
-			for(let pin: number = 0; pin < row + 1; ++pin) {
+			for(let idx: number = 0; idx < row + 1; ++idx) {
+				const pinPosition: PinPosition = { row: row, idx: idx }
+
                 const data: PinRenderData = {
-                    position: this.getPinPosition({row: row, idx: pin}),
+                    position: this.getPinWorldPosition(pinPosition),
                     radius: this.pinRadius,
                     color: '#cc241d'
                 }
 
-				const isHitPin: boolean = row === this.rowCount - 1
+				const isHitPin: boolean = this.isHitPin(pinPosition)
 				if(isHitPin) {
 					data.radius *= 2.0
-					const ratio: number = this.hitPins[pin].hitCount / maxHitCount
+					const ratio: number = this.hitPins[idx].hitCount / maxHitCount
 					this.renderGraphLine(ctx, data.position.x, data.position.y, ratio)
-                    this.handleHitPinAnimation(pin, data)
 				} 
 
+				this.handlePinAnimation(pinPosition, data)
                 this.renderPin(data)
+
                 if(isHitPin) {
-                    this.renderHitPinText(pin, data)
+                    this.renderHitPinText(idx, data)
                 }
 			}
 		}
 	}
 
-	public registerHit(idx: number, playSound: boolean = true): void {
-        const hitPin: HitPin = this.hitPins[idx]
-		++hitPin.hitCount
-        hitPin.lastTimeHit = performance.now()
+	public onPinHit(position: PinPosition, playSound: boolean = true): void {
+		this.pins[position.row][position.idx].lastTimeHit = performance.now()
+
+		if(position.row === this.rowCount - 1) {
+			const hitPin: HitPin = this.hitPins[position.idx]
+			++hitPin.hitCount
+		}
 
 		if(playSound) {
 			hitSound.play(0.5 + Math.random() * 1.0)
 		}
 	}
 
-	public getNextPin(lastPin: Pin): Pin {
+	public getNextPin(lastPin: PinPosition): PinPosition {
 		const nextRow: number = lastPin.row + 1
 		let nextIdx: number
 
@@ -113,12 +134,12 @@ export default class Board {
 		}
 	}
 
-	public getPinPosition(pin: Pin): Vector2 {
-		const startX: number = ctx.canvas.clientWidth * 0.5 - pin.row * this.rowHeight
+	public getPinWorldPosition(pinPosition: PinPosition): Vector2 {
+		const startX: number = ctx.canvas.clientWidth * 0.5 - pinPosition.row * this.rowHeight
 
 		return {
-			x: startX + pin.idx * this.rowHeight * 2,
-			y: this.getRowY(pin.row)
+			x: startX + pinPosition.idx * this.rowHeight * 2,
+			y: this.getRowY(pinPosition.row)
 		}
 	}
 
@@ -126,15 +147,19 @@ export default class Board {
 		return this.pinRadius + row * this.rowHeight + this.yOffset
 	}
 
+	public isHitPin(pinPosition: PinPosition): boolean {
+		return pinPosition.row === this.rowCount - 1
+	}
+
 	public simulate(ballCount: number): void {
 		for(let i: number = 0; i < ballCount; ++i) {
-			let pin: Pin = { row: 0, idx: 0 }
+			let pinPosition: PinPosition = { row: 0, idx: 0 }
 
-			while(pin.row < this.rowCount - 1) {
-				pin = this.getNextPin(pin)
+			while(pinPosition.row < this.rowCount - 1) {
+				pinPosition = this.getNextPin(pinPosition)
 			}
 
-			this.registerHit(pin.idx, false)
+			this.onPinHit({row: pinPosition.row, idx: pinPosition.idx}, false)
 		}
 
 		hitSound.play(0.5 + Math.random() * 1.0)
@@ -164,12 +189,12 @@ export default class Board {
 	}
 	
 	private renderDistribution(ctx: CanvasRenderingContext2D): void {
-		const leftPin: Pin = { row: this.rowCount - 1, idx: 0 }
-		const rightPin: Pin = { row: this.rowCount - 1, idx: this.rowCount - 1 }
+		const leftPin: PinPosition = { row: this.rowCount - 1, idx: 0 }
+		const rightPin: PinPosition = { row: this.rowCount - 1, idx: this.rowCount - 1 }
 		const lineWidth: number = 4
-		const startX: number = this.getPinPosition(leftPin).x - this.pinRadius * 2
+		const startX: number = this.getPinWorldPosition(leftPin).x - this.pinRadius * 2
 		const startY: number = this.getRowY(this.rowCount - 1) + lineWidth * 0.5
-		const endX: number = this.getPinPosition(rightPin).x + this.pinRadius * 2
+		const endX: number = this.getPinWorldPosition(rightPin).x + this.pinRadius * 2
 		const graphWidth: number = endX - startX
 		const maxProbability: number = MathUtils.binomialDistribution(this.rowCount - 1, Math.floor(this.rowCount / 2), 0.5)
 		
@@ -194,15 +219,21 @@ export default class Board {
         ctx.stroke()
 	}
 
-    private handleHitPinAnimation(pin: number, data: PinRenderData): void {
-        const hitPin: HitPin = this.hitPins[pin]
-        if(hitPin.lastTimeHit > -1) {
-            const age: number = performance.now() - hitPin.lastTimeHit
+    private handlePinAnimation(pinPosition: PinPosition, data: PinRenderData): void {
+        const pin: Pin = this.pins[pinPosition.row][pinPosition.idx]
+
+        if(pin.lastTimeHit > -1) {
+            const age: number = performance.now() - pin.lastTimeHit
             if(age < Board.hitPinAnimationDuration) {
-                const t: number = age / Board.hitPinAnimationDuration
-                data.position.y += Math.sin(t * Math.PI) * data.radius
-                data.radius += Math.sin(t * Math.PI) * data.radius * 0.2
-                data.color = MathUtils.lerpColor(data.color, '#00ff00', t)
+				if(this.isHitPin(pinPosition)) {
+					const t: number = age / Board.hitPinAnimationDuration
+					data.position.y += Math.sin(t * Math.PI) * data.radius
+					data.radius += Math.sin(t * Math.PI) * data.radius * 0.2
+					data.color = MathUtils.lerpColor(data.color, '#00ff00', t)
+				} else {
+					const t: number = age / Board.normalPinAnimationDuration
+					data.position.y += Math.sin(t * Math.PI) * data.radius * 0.5
+				}
             }
         }
     }

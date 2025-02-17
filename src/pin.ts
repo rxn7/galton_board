@@ -1,4 +1,4 @@
-export type Pin = {
+export type PinPosition = {
 	row: number
 	idx: number
 }

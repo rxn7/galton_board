@@ -1,7 +1,7 @@
 import Board from './board'
 import { MathUtils } from './math'
 import { Options } from './options'
-import { Pin } from './pin'
+import { PinPosition } from './pin'
 import { Vector2 } from './vector2'
 
 export default class Ball {
@@ -12,8 +12,8 @@ export default class Ball {
 
 	private timer: number = 0.0
 
-	private lastPin?: Pin = undefined
-	private nextPin: Pin = { row: 0, idx: 0 }
+	private lastPinPosition?: PinPosition = undefined
+	private nextPinPosition: PinPosition = { row: 0, idx: 0 }
 
 	public constructor(private readonly startPosition: Vector2) {
 		this.position = startPosition
@@ -22,8 +22,11 @@ export default class Ball {
 	public update(board: Board, deltaTimeMs: number): void {
 		this.timer += deltaTimeMs
 
-		const previousPosition: Vector2 = this.lastPin ? board.getPinPosition(this.lastPin) : this.startPosition
-		const nextPosition: Vector2 = board.getPinPosition(this.nextPin)
+		const previousPosition: Vector2 = this.lastPinPosition ? board.getPinWorldPosition(this.lastPinPosition) : this.startPosition
+		previousPosition.y -= board.pinRadius * 2
+
+		const nextPosition: Vector2 = board.getPinWorldPosition(this.nextPinPosition)
+		nextPosition.y -= board.pinRadius * 2
 
 		const t: number = Math.min(this.timer / Options.ballBounceTime, 1.0)
 		this.position = this.bouncePosition(board, MathUtils.lerpVector2(previousPosition, nextPosition, t), t)
@@ -31,9 +34,10 @@ export default class Ball {
 		if(t >= 1.0) {
 			this.timer = 0.0
 
-			if(this.nextPin.row >= board.rowCount-1) {
+			board.onPinHit(this.nextPinPosition)
+
+			if(this.nextPinPosition.row >= board.rowCount-1) {
 				this.queueDelete = true
-				board.registerHit(this.nextPin.idx)
 				return
 			}
 
@@ -49,8 +53,8 @@ export default class Ball {
 	}
 
 	private calculateNextPin(board: Board): void {
-		this.lastPin = this.nextPin
-		this.nextPin = board.getNextPin(this.lastPin)
+		this.lastPinPosition = this.nextPinPosition
+		this.nextPinPosition = board.getNextPin(this.lastPinPosition)
 	}
 
 	private bouncePosition(board: Board, position: Vector2, t: number): Vector2 {
