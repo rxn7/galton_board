@@ -111,7 +111,7 @@ export default class Board {
 			++hitPin.hitCount
 		}
 
-		if(playSound) {
+		if(this.isHitPin(position) && playSound) {
 			hitSound.play(0.5 + Math.random() * 1.0)
 		}
 	}
