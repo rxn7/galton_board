@@ -47,8 +47,6 @@ export default class Board {
 			}
         }
 
-		console.log(this.pins)
-
 		this.onCanvasResize(canvas)
 	}
 
@@ -67,8 +65,10 @@ export default class Board {
 	}
 
 	public render(ctx: CanvasRenderingContext2D): void {
+		let totalHitCount: number = 0
 		let maxHitCount: number = 0
         this.hitPins.forEach((hitPin: HitPin) => {
+			totalHitCount += hitPin.hitCount
             if(hitPin.hitCount > maxHitCount) {
                 maxHitCount = hitPin.hitCount
 			}
@@ -89,8 +89,13 @@ export default class Board {
 				const isHitPin: boolean = this.isHitPin(pinPosition)
 				if(isHitPin) {
 					data.radius *= 2.0
-					const ratio: number = this.hitPins[idx].hitCount / maxHitCount
-					this.renderGraphLine(ctx, data.position.x, data.position.y, ratio)
+					const hitCount: number = this.hitPins[idx].hitCount
+
+					const ratioToMax: number = hitCount / maxHitCount
+					this.renderGraphLine(ctx, data.position.x, data.position.y, ratioToMax)
+
+					const ratioToTotal: number = hitCount / totalHitCount
+					this.renderGraphText(ctx, data.position.x, data.position.y, ratioToTotal, ratioToMax)
 				} 
 
 				this.handlePinAnimation(pinPosition, data)
@@ -186,6 +191,16 @@ export default class Board {
 		ctx.roundRect(x - this.pinRadius, y, this.pinRadius * 2, ratio * this.graphSize, [0, 0, this.pinRadius, this.pinRadius])
 		ctx.fill()
 		ctx.beginPath()
+	}
+
+	private renderGraphText(ctx: CanvasRenderingContext2D, x: number, y: number, ratioToTotal: number, ratioToMax: number): void {
+		ctx.fillStyle = MathUtils.lerpColor('#ff0000', '#00ff00', ratioToMax)
+		ctx.textAlign = 'center' 
+		ctx.textBaseline = 'top'
+		const fontSize: number = this.pinRadius * 2.0
+		ctx.font = `bold ${fontSize}px monospace`
+		
+		ctx.fillText(`${(ratioToTotal * 100).toFixed(2)}%`, x, y + this.graphSize * ratioToMax + this.pinRadius + fontSize * 0.5)
 	}
 	
 	private renderDistribution(ctx: CanvasRenderingContext2D): void {
